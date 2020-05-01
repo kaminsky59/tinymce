@@ -17,9 +17,9 @@ interface IndexedTextMatch extends TextMatch {
 const find = (text: string, pattern: Pattern, start = 0, finish = text.length): Position[] => {
   const regex = pattern.regex;
   regex.lastIndex = start;
-  let match = regex.exec(text);
   const results = [];
-  while (match) {
+  let match;
+  while ((match = regex.exec(text))) {
     const matchedText = match[pattern.matchIndex];
     const matchStart = match.index + match[0].indexOf(matchedText);
     const matchFinish = matchStart + matchedText.length;
@@ -34,7 +34,6 @@ const find = (text: string, pattern: Pattern, start = 0, finish = text.length): 
       finish: matchFinish
     });
     regex.lastIndex = matchFinish;
-    match = regex.exec(text);
   }
   return results;
 };
