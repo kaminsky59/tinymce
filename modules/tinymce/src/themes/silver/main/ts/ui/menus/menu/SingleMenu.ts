@@ -24,7 +24,7 @@ export type ItemChoiceActionHandler = (value: string) => void;
 
 export enum FocusMode { ContentFocus, UiFocus }
 
-const hasIcon = (item) => item.icon !== undefined || item.type === 'togglemenuitem' || item.type === 'choicemenuitem';
+const hasIcon = (item) => item.icon !== undefined || item.type === 'choicemenuitem';
 const menuHasIcons = (xs: Array<SingleMenuItemApi | InlineContent.AutocompleterContents>) => Arr.exists(xs, hasIcon);
 
 const createMenuItemFromBridge = (
@@ -69,7 +69,7 @@ const createMenuItemFromBridge = (
     case 'togglemenuitem':
       return BridgeMenu.createToggleMenuItem(item).fold(
         handleError,
-        (d) => Option.some(MenuItems.toggle(parseForHorizontalMenu(d), itemResponse, providersBackstage))
+        (d) => Option.some(MenuItems.toggle(parseForHorizontalMenu(d), itemResponse, providersBackstage, menuHasIcons))
       );
     case 'separator':
       return BridgeMenu.createSeparatorMenuItem(item).fold(
