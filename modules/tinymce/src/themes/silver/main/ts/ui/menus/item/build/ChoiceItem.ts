@@ -36,6 +36,7 @@ const renderChoiceItem = (spec: Menu.ChoiceMenuItem, useText: boolean, presets: 
     // useText essentially says that we have one column. In one column lists, we should show a tick
     // The tick is controlled by the tickedClass (via css). It is always present
     // but is hidden unless the tickedClass is present.
+    // TODO: Not sure if this needs to be changed - I don't think it needs to be
     checkMark: useText ? Option.some(renderCheckmark(providersBackstage.icons)) : Option.none(),
     caret: Option.none(),
     value: spec.value

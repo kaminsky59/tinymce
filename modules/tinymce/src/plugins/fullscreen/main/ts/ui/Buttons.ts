@@ -20,7 +20,8 @@ const register = (editor: Editor, fullscreenState: Cell<object>) => {
     text: 'Fullscreen',
     shortcut: 'Meta+Shift+F',
     onAction: () => editor.execCommand('mceFullScreen'),
-    onSetup: makeSetupHandler(editor, fullscreenState)
+    onSetup: makeSetupHandler(editor, fullscreenState),
+    icon: 'fullscreen'
   });
 
   editor.ui.registry.addToggleButton('fullscreen', {

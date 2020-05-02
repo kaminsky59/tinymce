@@ -92,8 +92,9 @@ const renderColorStructure = (itemText: Option<string>, itemValue: string, iconS
 
 // TODO: Maybe need aria-label
 const renderNormalItemStructure = (info: NormalItemSpec, icon: Option<string>, renderIcons: boolean, textRender: (text: string) => AlloySpec, rtlClass: boolean): ItemStructure => {
-  // checkmark has priority, otherwise render icon if we have one, otherwise empty icon for spacing
-  const leftIcon: Option<AlloySpec> = renderIcons ? info.checkMark.orThunk(() => icon.or(Option.some('')).map(renderIcon)) : Option.none();
+  // TINY-3345: Dedicated column for icon and checkmark, render icons if we have one, otherwise empty icon for spacing
+  const leftIcon: Option<AlloySpec> = renderIcons ? icon.or(Option.some('')).map(renderIcon) : Option.none();
+  const checkmark: Option<AlloySpec> = renderIcons ? info.checkMark : Option.none();
   const domTitle = info.ariaLabel.map((label): {attributes?: {title: string}} => ({
     attributes: {
       // TODO: AP-213 change this temporary solution to use tooltips, ensure its aria readable still.
@@ -118,7 +119,8 @@ const renderNormalItemStructure = (info: NormalItemSpec, icon: Option<string>, r
       leftIcon,
       content,
       info.shortcutContent.map(renderShortcut),
-      info.caret
+      checkmark,
+      info.caret,
     ]
   };
   return menuItem;

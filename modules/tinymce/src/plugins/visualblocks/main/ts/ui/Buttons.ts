@@ -26,7 +26,8 @@ const register = (editor: Editor, enabledState: Cell<boolean>) => {
   editor.ui.registry.addToggleMenuItem('visualblocks', {
     text: 'Show blocks',
     onAction: () => editor.execCommand('mceVisualBlocks'),
-    onSetup: toggleActiveState(editor, enabledState)
+    onSetup: toggleActiveState(editor, enabledState),
+    icon: 'visualblocks'
   });
 };
 

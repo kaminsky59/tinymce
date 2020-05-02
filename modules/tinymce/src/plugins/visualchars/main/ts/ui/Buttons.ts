@@ -26,7 +26,8 @@ const register = (editor: Editor, toggleState: Cell<boolean>) => {
   editor.ui.registry.addToggleMenuItem('visualchars', {
     text: 'Show invisible characters',
     onAction: () => editor.execCommand('mceVisualChars'),
-    onSetup: toggleActiveState(editor, toggleState)
+    onSetup: toggleActiveState(editor, toggleState),
+    icon: 'visualchars'
   });
 };
 

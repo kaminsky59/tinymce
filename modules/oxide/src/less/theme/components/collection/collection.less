@@ -238,6 +238,11 @@
     display: none;
   }
 
+  // Tickable items that are not ticked and have an adjacent shortcut hide the check mark completely
+  .tox-collection__item[role="menuitemcheckbox"]:not(.tox-collection__item--enabled) .tox-collection__item-accessory + .tox-collection__item-checkmark {
+    display: none;
+  }
+
   .tox-collection--horizontal {
     background-color: @menu-background-color;
     border: 1px solid @collection-item-separator-color;

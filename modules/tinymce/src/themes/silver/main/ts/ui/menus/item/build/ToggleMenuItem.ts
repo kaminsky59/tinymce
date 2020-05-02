@@ -28,7 +28,7 @@ const renderToggleMenuItem = (spec: Menu.ToggleMenuItem, itemResponse: ItemRespo
   // BespokeSelects use meta to pass through styling information. Bespokes should only
   // be togglemenuitems hence meta is only passed through in this MenuItem.
   const structure = renderItemStructure({
-    iconContent: Option.none(),
+    iconContent: spec.icon,
     textContent: spec.text,
     htmlContent: Option.none(),
     ariaLabel: spec.text,

@@ -27,7 +27,8 @@ const register = function (editor: Editor, clipboard: Clipboard) {
   editor.ui.registry.addToggleMenuItem('pastetext', {
     text: 'Paste as text',
     onAction: () => editor.execCommand('mceTogglePlainTextPaste'),
-    onSetup: makeSetupHandler(editor, clipboard)
+    onSetup: makeSetupHandler(editor, clipboard),
+    icon: 'paste-text',
   });
 };
 

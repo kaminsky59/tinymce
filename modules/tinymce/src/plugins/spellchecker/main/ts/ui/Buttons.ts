@@ -98,7 +98,8 @@ const register = function (editor: Editor, pluginUrl: string, startedState: Cell
         editor.off(spellcheckerEvents, setMenuItemCheck);
       };
     },
-    onAction: startSpellchecking
+    onAction: startSpellchecking,
+    icon: 'spell-check'
   });
 
 };
