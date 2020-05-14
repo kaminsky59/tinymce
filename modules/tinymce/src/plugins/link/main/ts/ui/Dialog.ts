@@ -7,21 +7,21 @@
 
 import { Types } from '@ephox/bridge';
 import { HTMLAnchorElement } from '@ephox/dom-globals';
-import { Arr, Option, Options } from '@ephox/katamari';
+import { Arr, Option } from '@ephox/katamari';
 import Editor from 'tinymce/core/api/Editor';
 
 import * as Settings from '../api/Settings';
 import { ListOptions } from '../core/ListOptions';
 import * as Utils from '../core/Utils';
 import { DialogChanges } from './DialogChanges';
-import { DialogConfirms } from './DialogConfirms';
+// import { DialogConfirms } from './DialogConfirms';
 import { DialogInfo } from './DialogInfo';
-import { LinkDialogData, LinkDialogInfo } from './DialogTypes';
+import { LinkDialogData, LinkDialogInfo, LinkDialogOutput } from './DialogTypes';
 
 const handleSubmit = (editor: Editor, info: LinkDialogInfo) => (api: Types.Dialog.DialogInstanceApi<LinkDialogData>) => {
   const data: LinkDialogData = api.getData();
 
-  if (!data.url.value) {
+  if (!data.link) {
     Utils.unlink(editor);
     // Temporary fix. TODO: TINY-2811
     api.close();
@@ -32,23 +32,33 @@ const handleSubmit = (editor: Editor, info: LinkDialogInfo) => (api: Types.Dialo
   // then check if it's changed and return none if nothing has changed.
   const getChangedValue = (key: string) => Option.from(data[key]).filter((value) => !info.anchor[key].is(value));
 
-  const changedData = {
-    href: data.url.value,
+  // const changedData = {
+  //   href: data.url.value,
+  //   text: getChangedValue('text'),
+  //   target: getChangedValue('target'),
+  //   rel: getChangedValue('rel'),
+  //   class: getChangedValue('linkClass'),
+  //   title: getChangedValue('title'),
+  // };
+
+  const changedData: LinkDialogOutput = {
+    id: Option.some(data.link),
+    // link: getChangedValue('link'),
     text: getChangedValue('text'),
-    target: getChangedValue('target'),
-    rel: getChangedValue('rel'),
-    class: getChangedValue('linkClass'),
-    title: getChangedValue('title'),
+    // target: getChangedValue('target'),
+    // rel: getChangedValue('rel'),
+    // class: getChangedValue('linkClass'),
+    // title: getChangedValue('title'),
   };
 
   const attachState = {
-    href: data.url.value,
-    attach: data.url.meta !== undefined && data.url.meta.attach ? data.url.meta.attach : () => {}
+    // href: data.url.value,
+    // attach: data.url.meta !== undefined && data.url.meta.attach ? data.url.meta.attach : () => {}
   };
 
-  DialogConfirms.preprocess(editor, changedData).then((pData) => {
-    Utils.link(editor, attachState, pData);
-  });
+  // DialogConfirms.preprocess(editor, changedData).then((pData) => {
+  Utils.link(editor, attachState, changedData);
+  // });
 
   api.close();
 };
@@ -83,14 +93,16 @@ const getInitialData = (info: LinkDialogInfo, defaultTarget: Option<string>): Li
 
 const makeDialog = (settings: LinkDialogInfo, onSubmit, editor: Editor): Types.Dialog.DialogApi<LinkDialogData> => {
 
-  const urlInput: Types.Dialog.BodyComponentApi[] = [
-    {
-      name: 'url',
-      type: 'urlinput',
-      filetype: 'file',
-      label: 'URL'
-    }
-  ];
+  // const idInputs: Types.Dialog.BodyComponentApi[] = [
+  //   {
+  //     name: 'links',
+  //     type: 'selectbox',
+  //     label: 'Resource To Link',
+  //     items: [{text: "test", value: '123'}]
+  //   }
+  // ];
+
+  const idInputs = settings.link.map(ListOptions.createUi('link', 'Link list')).toArray();
 
   const displayText = settings.anchor.text.map<Types.Dialog.BodyComponentApi>(() => (
     {
@@ -100,37 +112,39 @@ const makeDialog = (settings: LinkDialogInfo, onSubmit, editor: Editor): Types.D
     }
   )).toArray();
 
-  const titleText: Types.Dialog.BodyComponentApi[] = settings.flags.titleEnabled ? [
-    {
-      name: 'title',
-      type: 'input',
-      label: 'Title'
-    }
-  ] : [];
+  // const titleText: Types.Dialog.BodyComponentApi[] = settings.flags.titleEnabled ? [
+  //   {
+  //     name: 'title',
+  //     type: 'input',
+  //     label: 'Title'
+  //   }
+  // ] : [];
 
   const defaultTarget: Option<string> = Option.from(Settings.getDefaultLinkTarget(editor));
 
   const initialData = getInitialData(settings, defaultTarget);
   const dialogDelta = DialogChanges.init(initialData, settings);
-  const catalogs = settings.catalogs;
+  // const catalogs = settings.catalogs;
 
   const body: Types.Dialog.PanelApi = {
     type: 'panel',
     items: Arr.flatten([
-      urlInput,
+      // urlInput,
       displayText,
-      titleText,
-      Options.cat<Types.Dialog.BodyComponentApi>([
-        catalogs.anchor.map(ListOptions.createUi('anchor', 'Anchors')),
-        catalogs.rels.map(ListOptions.createUi('rel', 'Rel')),
-        catalogs.targets.map(ListOptions.createUi('target', 'Open link in...')),
-        catalogs.link.map(ListOptions.createUi('link', 'Link list')),
-        catalogs.classes.map(ListOptions.createUi('linkClass', 'Class'))
-      ])
+      // titleText,
+      idInputs,
+      // [ListOptions.createUi('anchor', 'Anchors')()],
+      // Options.cat<Types.Dialog.BodyComponentApi>([
+      // catalogs.anchor.map(ListOptions.createUi('anchor', 'Anchors')),
+      // catalogs.rels.map(ListOptions.createUi('rel', 'Rel')),
+      // catalogs.targets.map(ListOptions.createUi('target', 'Open link in...')),
+      // catalogs.link.map(ListOptions.createUi('link', 'Link list')),
+      // catalogs.classes.map(ListOptions.createUi('linkClass', 'Class'))
+      // ])
     ])
   };
   return {
-    title: 'Insert/Edit Link',
+    title: 'Create/Edit Smart Link',
     size: 'normal',
     body,
     buttons: [
@@ -160,8 +174,7 @@ const open = function (editor: Editor) {
   const data = collectData(editor);
   data.then((info) => {
     const onSubmit = handleSubmit(editor, info);
-    return makeDialog(info, onSubmit, editor);
-  }).then((spec) => {
+    const spec = makeDialog(info, onSubmit, editor);
     editor.windowManager.open(spec);
   });
 };

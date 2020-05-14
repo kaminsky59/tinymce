@@ -36,7 +36,7 @@ const getDelta = (persistentText: string, fieldName: string, catalog: ListItem[]
 
 const findCatalog = (settings: LinkDialogInfo, fieldName: string): Option<ListItem[]> => {
   if (fieldName === 'link') {
-    return settings.catalogs.link;
+    return settings.link;
   } else if (fieldName === 'anchor') {
     return settings.catalogs.anchor;
   } else {

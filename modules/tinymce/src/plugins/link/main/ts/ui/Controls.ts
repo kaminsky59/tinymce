@@ -24,8 +24,8 @@ const setupButtons = function (editor: Editor) {
 
   editor.ui.registry.addButton('openlink', {
     icon: 'new-tab',
-    tooltip: 'Open link',
-    onAction: Actions.gotoSelectedLink(editor),
+    tooltip: 'Open Link',
+    onAction: () => editor.execCommand('openLink'),
     onSetup: Actions.toggleEnabledState(editor)
   });
 
@@ -39,9 +39,10 @@ const setupButtons = function (editor: Editor) {
 
 const setupMenuItems = function (editor: Editor) {
   editor.ui.registry.addMenuItem('openlink', {
-    text: 'Open link',
+    text: 'Open Link',
     icon: 'new-tab',
-    onAction: Actions.gotoSelectedLink(editor),
+    shortcut: 'Meta+G',
+    onAction:  () => editor.execCommand('openLink'),
     onSetup: Actions.toggleEnabledState(editor)
   });
 
@@ -112,12 +113,8 @@ const setupContextToolbars = function (editor: Editor) {
             const onlyText = Utils.isOnlyTextSelected(editor.selection.getContent());
             const text: Option<string> = onlyText ? Option.some(Utils.getAnchorText(editor.selection, anchor)).filter((t) => t.length > 0).or(Option.from(value)) : Option.none();
             Utils.link(editor, attachState, {
-              href: value,
-              text,
-              title: Option.none(),
-              rel: Option.none(),
-              target: Option.none(),
-              class: Option.none()
+              id: Option.some(value),
+              text
             });
             formApi.hide();
           } else {
@@ -141,7 +138,7 @@ const setupContextToolbars = function (editor: Editor) {
       {
         type: 'contextformbutton',
         icon: 'new-tab',
-        tooltip: 'Open link',
+        tooltip: 'Open Link',
         onSetup: onSetupLink,
         onAction: (formApi) => {
           Actions.gotoSelectedLink(editor)();

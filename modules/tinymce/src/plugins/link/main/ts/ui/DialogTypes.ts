@@ -23,6 +23,7 @@ export interface ListGroup {
 export type ListItem = ListValue/*  | ListGroup */;
 
 export interface LinkDialogInfo {
+  link: Option<ListItem[]>;
   anchor: {
     url: Option<string>;
     text: Option<string>;
@@ -32,7 +33,6 @@ export interface LinkDialogInfo {
     title: Option<string>;
   };
   catalogs: {
-    link: Option<ListItem[]>;
     targets: Option<ListItem[]>;
     rels: Option<ListItem[]>;
     classes: Option<ListItem[]>;
@@ -62,12 +62,13 @@ export interface LinkDialogData {
 }
 
 export interface LinkDialogOutput {
-  href: string;
+  id: Option<string>;
+  // link: Option<string>;
   text: Option<string>;
-  target: Option<string>;
-  rel: Option<string>;
-  class: Option<string>;
-  title: Option<string>;
+  // target: Option<string>;
+  // rel: Option<string>;
+  // class: Option<string>;
+  // title: Option<string>;
 }
 
 interface LinkUrlMeta {

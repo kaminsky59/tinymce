@@ -6,11 +6,11 @@
  */
 
 import { Element, HTMLAnchorElement } from '@ephox/dom-globals';
-import { Arr, Option, Obj, Type } from '@ephox/katamari';
+import { Option, Obj, Type } from '@ephox/katamari';
 import Editor from 'tinymce/core/api/Editor';
 import Tools from 'tinymce/core/api/util/Tools';
-import * as Settings from '../api/Settings';
-import { AssumeExternalTargets } from '../api/Types';
+// import * as Settings from '../api/Settings';
+// import { AssumeExternalTargets } from '../api/Types';
 import { AttachState, LinkDialogOutput } from '../ui/DialogTypes';
 import { hasRtcPlugin } from './DetectRtc';
 
@@ -71,40 +71,40 @@ const isOnlyTextSelected = (html: string) => {
 
 const isImageFigure = (elm: Element) => elm && elm.nodeName === 'FIGURE' && /\bimage\b/i.test(elm.className);
 
-const getLinkAttrs = (data: LinkDialogOutput): Record<string, string> => Arr.foldl([ 'title', 'rel', 'class', 'target' ], (acc, key) => {
-  data[key].each((value) => {
-    // If dealing with an empty string, then treat that as being null so the attribute is removed
-    acc[key] = value.length > 0 ? value : null;
-  });
-  return acc;
-}, {
-  href: data.href
-});
+// const getLinkAttrs = (data: LinkDialogOutput): Record<string, string> => Arr.foldl([ 'title', 'rel', 'class', 'target' ], (acc, key) => {
+//   data[key].each((value) => {
+//     // If dealing with an empty string, then treat that as being null so the attribute is removed
+//     acc[key] = value.length > 0 ? value : null;
+//   });
+//   return acc;
+// }, {
+//   href: data.href
+// });
 
-const handleExternalTargets = (href: string, assumeExternalTargets: AssumeExternalTargets): string => {
-  if ((assumeExternalTargets === AssumeExternalTargets.ALWAYS_HTTP
-        || assumeExternalTargets === AssumeExternalTargets.ALWAYS_HTTPS)
-      && !hasProtocol(href)) {
-    return assumeExternalTargets + '://' + href;
-  }
-  return href;
-};
+// const handleExternalTargets = (href: string, assumeExternalTargets: AssumeExternalTargets): string => {
+//   if ((assumeExternalTargets === AssumeExternalTargets.ALWAYS_HTTP
+//         || assumeExternalTargets === AssumeExternalTargets.ALWAYS_HTTPS)
+//       && !hasProtocol(href)) {
+//     return assumeExternalTargets + '://' + href;
+//   }
+//   return href;
+// };
 
-const applyLinkOverrides = (editor: Editor, linkAttrs: Record<string, string>) => {
-  const newLinkAttrs = { ...linkAttrs };
-  if (!(Settings.getRelList(editor).length > 0) && Settings.allowUnsafeLinkTarget(editor) === false) {
-    const newRel = applyRelTargetRules(newLinkAttrs.rel, newLinkAttrs.target === '_blank');
-    newLinkAttrs.rel = newRel ? newRel : null;
-  }
+// const applyLinkOverrides = (editor: Editor, linkAttrs: Record<string, string>) => {
+//   const newLinkAttrs = { ...linkAttrs };
+//   if (!(Settings.getRelList(editor).length > 0) && Settings.allowUnsafeLinkTarget(editor) === false) {
+//     const newRel = applyRelTargetRules(newLinkAttrs.rel, newLinkAttrs.target === '_blank');
+//     newLinkAttrs.rel = newRel ? newRel : null;
+//   }
 
-  if (Option.from(newLinkAttrs.target).isNone() && Settings.getTargetList(editor) === false) {
-    newLinkAttrs.target = Settings.getDefaultLinkTarget(editor);
-  }
+//   if (Option.from(newLinkAttrs.target).isNone() && Settings.getTargetList(editor) === false) {
+//     newLinkAttrs.target = Settings.getDefaultLinkTarget(editor);
+//   }
 
-  newLinkAttrs.href = handleExternalTargets(newLinkAttrs.href, Settings.assumeExternalTargets(editor));
+//   newLinkAttrs.href = handleExternalTargets(newLinkAttrs.href, Settings.assumeExternalTargets(editor));
 
-  return newLinkAttrs;
-};
+//   return newLinkAttrs;
+// };
 
 const updateLink = (editor: Editor, anchorElm: HTMLAnchorElement, text: Option<string>, linkAttrs: Record<string, string>) => {
   // If we have text, then update the anchor elements text content
@@ -118,6 +118,8 @@ const updateLink = (editor: Editor, anchorElm: HTMLAnchorElement, text: Option<s
 
   editor.dom.setAttribs(anchorElm, linkAttrs);
   editor.selection.select(anchorElm);
+
+  editor.execCommand('saveLink', false, linkAttrs);
 };
 
 const createLink = (editor: Editor, selectedElm: Element, text: Option<string>, linkAttrs: Record<string, string>) => {
@@ -132,19 +134,21 @@ const createLink = (editor: Editor, selectedElm: Element, text: Option<string>, 
         editor.insertContent(editor.dom.createHTML('a', linkAttrs, editor.dom.encode(text)));
       }
     );
+
+    editor.execCommand('onSaveLink', false, linkAttrs);
   }
 };
 
 const linkDomMutation = (editor: Editor, attachState: AttachState, data: LinkDialogOutput) => {
   const selectedElm = editor.selection.getNode();
   const anchorElm = getAnchorElement(editor, selectedElm);
-  const linkAttrs = applyLinkOverrides(editor, getLinkAttrs(data));
+  // const linkAttrs = applyLinkOverrides(editor, getLinkAttrs(data));
 
   editor.undoManager.transact(() => {
-    if (data.href === attachState.href) {
-      attachState.attach();
-    }
-
+    // if (data.href === attachState.href) {
+    //   attachState.attach();
+    // }
+    const linkAttrs: Record<string,any> = { href: data.id.toArray()[0] };
     if (anchorElm) {
       editor.focus();
       updateLink(editor, anchorElm, data.text, linkAttrs);
@@ -163,6 +167,7 @@ const unlinkDomMutation = (editor: Editor) => {
       const anchorElm = editor.dom.getParent(node, 'a[href]', editor.getBody());
       if (anchorElm) {
         editor.dom.remove(anchorElm, true);
+        editor.execCommand('onRemoveLink', false, anchorElm);
       }
     }
     editor.focus();
@@ -170,15 +175,11 @@ const unlinkDomMutation = (editor: Editor) => {
 };
 
 const unwrapOptions = (data: LinkDialogOutput) => {
-  const { class: cls, href, rel, target, text, title } = data;
+  const { text, id } = data;
 
   return Obj.filter({
-    class: cls.getOrNull(),
-    href,
-    rel: rel.getOrNull(),
-    target: target.getOrNull(),
+    id: id.getOrNull(),
     text: text.getOrNull(),
-    title: title.getOrNull()
   }, (v, _k) => Type.isNull(v) === false);
 };
 

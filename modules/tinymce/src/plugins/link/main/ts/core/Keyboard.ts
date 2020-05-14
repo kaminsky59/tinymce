@@ -9,6 +9,10 @@ const setup = function (editor) {
   editor.addShortcut('Meta+K', '', () => {
     editor.execCommand('mceLink');
   });
+
+  editor.addShortcut('Meta+G', '', () => {
+    editor.execCommand('openLink');
+  });
 };
 
 export {

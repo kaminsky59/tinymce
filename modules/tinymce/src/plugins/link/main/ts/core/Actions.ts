@@ -39,7 +39,7 @@ const openDialog = (editor: Editor) => function () {
 };
 
 const gotoSelectedLink = (editor: Editor) => function () {
-  gotoLink(editor, getSelectedLink(editor));
+  // gotoLink(editor, getSelectedLink(editor));
 };
 
 const leftClickedOnAHref = (editor: Editor) => function (elm) {

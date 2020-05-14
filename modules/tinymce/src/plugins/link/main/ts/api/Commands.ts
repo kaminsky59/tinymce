@@ -6,18 +6,33 @@
  */
 
 import * as Actions from '../core/Actions';
-import * as Settings from './Settings';
+import { unlink } from '../core/Utils';
+// import * as Settings from './Settings';
 
 const register = function (editor) {
-  editor.addCommand('mceLink', () => {
-    if (Settings.useQuickLink(editor)) {
-      // Taken from ContextEditorEvents in silver. Find a better way.
-      editor.fire('contexttoolbar-show', {
-        toolbarKey: 'quicklink'
-      });
-    } else {
-      Actions.openDialog(editor)();
-    }
+  // editor.addCommand('mceLink', () => {
+  //   // if (Settings.useQuickLink(editor)) {
+  //   //   // Taken from ContextEditorEvents in silver. Find a better way.
+  //   //   editor.fire('contexttoolbar-show', {
+  //   //     toolbarKey: 'quicklink'
+  //   //   });
+  //   // } else {
+  //     Actions.openDialog(editor)();
+  //   // }
+  // });
+
+  editor.addCommand('openLink', () => {
+    Actions.gotoSelectedLink(editor)();
+  });
+
+  editor.addCommand('onSaveLink', () => {
+  });
+
+  editor.addCommand('onRemoveLink', () => {
+  });
+
+  editor.addCommand('mceRemoveLink', () => {
+    unlink(editor);
   });
 };
 
